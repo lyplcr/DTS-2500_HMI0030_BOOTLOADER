@@ -1,0 +1,12 @@
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\core\ipv4\ip_addr.c
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\lwip/opt.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\port\lwipopts.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\lwip/debug.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\lwip/arch.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\port\arch/cc.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\port\arch/cpu.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\ipv4\lwip/ip_addr.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\ipv4\lwip/inet.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\lwip/netif.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\lwip/err.h
+..\OUTPUT\OBJ\ip_addr.o: ..\LWIP-1.3.1\src\include\lwip/pbuf.h

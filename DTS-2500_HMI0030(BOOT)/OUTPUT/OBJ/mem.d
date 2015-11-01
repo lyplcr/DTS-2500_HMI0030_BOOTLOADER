@@ -1,0 +1,14 @@
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\core\mem.c
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/opt.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\port\lwipopts.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/debug.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/arch.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\port\arch/cc.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\port\arch/cpu.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/def.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/mem.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/sys.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/stats.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/memp.h
+..\OUTPUT\OBJ\mem.o: ..\LWIP-1.3.1\src\include\lwip/memp_std.h
+..\OUTPUT\OBJ\mem.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
