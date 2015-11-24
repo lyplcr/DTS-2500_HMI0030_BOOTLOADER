@@ -7,7 +7,7 @@
 
 /* Exported define -----------------------------------------------------------*/
 #define USB_STATUS_CYCLE_NUM				3000		//USB循环体必须达到此次数才能操作
-#define USB_LEAVE_SYNC_NUM					100			//USB离开同步次数
+#define USB_LEAVE_SYNC_NUM					200			//USB离开同步次数
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
