@@ -389,57 +389,60 @@ uint32_t ETH_Init(ETH_InitTypeDef* ETH_InitStruct, uint16_t PHYAddress)
 
     /* Reset Timeout counter */
 //    timeout = 0; 
-		if(!(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_Linked_Status));
+	if(!(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_Linked_Status))
+	{
+		;
+	}
     else
+	{
+		/* Enable Auto-Negotiation */
+		if(!(ETH_WritePHYRegister(PHYAddress, PHY_BCR, PHY_AutoNegotiation)))
 		{
-    /* Enable Auto-Negotiation */
-    if(!(ETH_WritePHYRegister(PHYAddress, PHY_BCR, PHY_AutoNegotiation)))
-    {
-      /* Return ERROR in case of write timeout */
-      return ETH_ERROR;
-    }
+		  /* Return ERROR in case of write timeout */
+		  return ETH_ERROR;
+		}
 
-    /* Wait until the auto-negotiation will be completed */
-    do
-    {
-      timeout++;
-    } while (!(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_AutoNego_Complete) && (timeout < (uint32_t)PHY_READ_TO));  
+		/* Wait until the auto-negotiation will be completed */
+		do
+		{
+		  timeout++;
+		} while (!(ETH_ReadPHYRegister(PHYAddress, PHY_BSR) & PHY_AutoNego_Complete) && (timeout < (uint32_t)PHY_READ_TO));  
 
-    /* Return ERROR in case of timeout */
-    if(timeout == PHY_READ_TO)
-    {
-      return ETH_ERROR;
-    }
+		/* Return ERROR in case of timeout */
+		if(timeout == PHY_READ_TO)
+		{
+		  return ETH_ERROR;
+		}
 
-    /* Reset Timeout counter */
-    timeout = 0;
-    
-    /* Read the result of the auto-negotiation */
-    RegValue = ETH_ReadPHYRegister(PHYAddress, PHY_SR);
-  
-    /* Configure the MAC with the Duplex Mode fixed by the auto-negotiation process */
-    if((RegValue & PHY_DUPLEX_STATUS) != (uint32_t)RESET)
-    {
-      /* Set Ethernet duplex mode to Full-duplex following the auto-negotiation */
-      ETH_InitStruct->ETH_Mode = ETH_Mode_FullDuplex;  
-    }
-    else
-    {
-      /* Set Ethernet duplex mode to Half-duplex following the auto-negotiation */
-      ETH_InitStruct->ETH_Mode = ETH_Mode_HalfDuplex;           
-    }
+		/* Reset Timeout counter */
+		timeout = 0;
+		
+		/* Read the result of the auto-negotiation */
+		RegValue = ETH_ReadPHYRegister(PHYAddress, PHY_SR);
+	  
+		/* Configure the MAC with the Duplex Mode fixed by the auto-negotiation process */
+		if((RegValue & PHY_DUPLEX_STATUS) != (uint32_t)RESET)
+		{
+		  /* Set Ethernet duplex mode to Full-duplex following the auto-negotiation */
+		  ETH_InitStruct->ETH_Mode = ETH_Mode_FullDuplex;  
+		}
+		else
+		{
+		  /* Set Ethernet duplex mode to Half-duplex following the auto-negotiation */
+		  ETH_InitStruct->ETH_Mode = ETH_Mode_HalfDuplex;           
+		}
 
-    /* Configure the MAC with the speed fixed by the auto-negotiation process */
-    if(RegValue & PHY_SPEED_STATUS)
-    {  
-      /* Set Ethernet speed to 10M following the auto-negotiation */    
-      ETH_InitStruct->ETH_Speed = ETH_Speed_10M; 
-    }
-    else
-    {   
-      /* Set Ethernet speed to 100M following the auto-negotiation */ 
-      ETH_InitStruct->ETH_Speed = ETH_Speed_100M;      
-    }
+		/* Configure the MAC with the speed fixed by the auto-negotiation process */
+		if(RegValue & PHY_SPEED_STATUS)
+		{  
+		  /* Set Ethernet speed to 10M following the auto-negotiation */    
+		  ETH_InitStruct->ETH_Speed = ETH_Speed_10M; 
+		}
+		else
+		{   
+		  /* Set Ethernet speed to 100M following the auto-negotiation */ 
+		  ETH_InitStruct->ETH_Speed = ETH_Speed_100M;      
+		}
 	}    
   }
   else
@@ -2693,12 +2696,23 @@ uint32_t ETH_GetMMCRegister(uint32_t ETH_MMCReg)
   return (*(__IO uint32_t *)(ETH_MAC_BASE + ETH_MMCReg));
 }
 
+/* 
+	PHY_SR：
+		2~4bit：
+		[001] - 10Mb半双工
+		[101] - 10Mb全双工
+		[010] - 100Mb半双工
+		[110] - 100Mb全双工
+
+		PHY_DUPLEX_STATUS：判断第4位 -> 1：全双工， 0：半双工
+		PHY_SPEED_STATUS：判断第2位  -> 1:10Mb,	   0：100Mb
+*/
 
 void
 Link_tmr(void)
 {
   uint32_t  RegValue = 0;
-  RegValue = ETH_ReadPHYRegister(0, PHY_SR);
+  RegValue = ETH_ReadPHYRegister(0x00, PHY_SR);
       /* Configure the MAC with the Duplex Mode fixed by the autonegotiation process */
     if((RegValue &  PHY_DUPLEX_STATUS ) != (uint32_t)RESET)
     {

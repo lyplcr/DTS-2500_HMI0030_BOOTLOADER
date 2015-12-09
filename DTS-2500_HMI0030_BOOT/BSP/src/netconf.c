@@ -19,27 +19,49 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "bsp.h"
 #include "netconf.h"
-#include <stdio.h>
 #include "lwip/memp.h"
 #include "lwip/tcp.h"
 #include "lwip/udp.h"
 #include "netif/etharp.h"
 #include "lwip/dhcp.h"
 #include "ethernetif.h"
-#include "timer.h"
-#include "uid.h"
-#include "main.h"
-#include "tftpserver.h"
-#include "lan8720.h"
+#include "stm32f4x7_eth.h"
 
-//#include "FlashEEPROM.h"   
+/* MAC Address definition *****************************************************/
+#define MAC_ADDR0   0
+#define MAC_ADDR1   0
+#define MAC_ADDR2   0
+#define MAC_ADDR3   0 
+#define MAC_ADDR4   0
+#define MAC_ADDR5   2
+
+/* Static IP Address definition ***********************************************/
+#define IP_ADDR0   192
+#define IP_ADDR1   168
+#define IP_ADDR2   0
+#define IP_ADDR3   111
+   
+/* NETMASK definition *********************************************************/
+#define NETMASK_ADDR0   255
+#define NETMASK_ADDR1   255
+#define NETMASK_ADDR2   255
+#define NETMASK_ADDR3   0
+
+/* Gateway Address definition *************************************************/
+#define GW_ADDR0   192
+#define GW_ADDR1   168
+#define GW_ADDR2   0
+#define GW_ADDR3   1 
+  
 
 /* Private variables ---------------------------------------------------------*/
 struct netif netif;
 __IO uint32_t TCPTimer = 0;
 __IO uint32_t ARPTimer = 0;
 __IO uint32_t LinkTimer = 0;
+static BoolStatus EthLinkStatus = NO;
 
 #define Link_TMR_INTERVAL       250
 
@@ -56,14 +78,26 @@ extern void server_init(void);
 
 /* Private functions ---------------------------------------------------------*/
 
-
+/*------------------------------------------------------------
+ * Function Name  : GetEthLinkStatus
+ * Description    : 获取以太网连接状态
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *------------------------------------------------------------*/
+BoolStatus GetEthLinkStatus( void )
+{
+	EthLinkStatus = (ETH_ReadPHYRegister(LAN8720_PHY_ADDRESS, PHY_BSR) & PHY_Linked_Status) ? YES : NO;
+	
+	return EthLinkStatus;
+}
 
 /**
   * @brief  Initializes the lwIP stack
   * @param  None
   * @retval None
   */
-void Ethernet_Init(void)
+void bsp_InitEthernet(void)
 {
 	struct ip_addr ipaddr;
 	struct ip_addr netmask;
@@ -71,7 +105,7 @@ void Ethernet_Init(void)
 	uint8_t macaddress[6] = {MAC_ADDR0,MAC_ADDR1,MAC_ADDR2,MAC_ADDR3,MAC_ADDR4,MAC_ADDR5};
 
 	/* MAC层初始化 		*/
-	LAN8720_Init();				
+	bsp_InitLan8720();				
 
 	/* Initializes the dynamic memory heap defined by MEM_SIZE.*/
 	mem_init();
@@ -91,31 +125,31 @@ void Ethernet_Init(void)
 
 	Set_MAC_Address(macaddress);
 
-  /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
-            struct ip_addr *netmask, struct ip_addr *gw,
-            void *state, err_t (* init)(struct netif *netif),
-            err_t (* input)(struct pbuf *p, struct netif *netif))
-    
-   Adds your network interface to the netif_list. Allocate a struct
-  netif and pass a pointer to this structure as the first argument.
-  Give pointers to cleared ip_addr structures when using DHCP,
-  or fill them with sane numbers otherwise. The state pointer may be NULL.
+	  /* - netif_add(struct netif *netif, struct ip_addr *ipaddr,
+				struct ip_addr *netmask, struct ip_addr *gw,
+				void *state, err_t (* init)(struct netif *netif),
+				err_t (* input)(struct pbuf *p, struct netif *netif))
+		
+	   Adds your network interface to the netif_list. Allocate a struct
+	  netif and pass a pointer to this structure as the first argument.
+	  Give pointers to cleared ip_addr structures when using DHCP,
+	  or fill them with sane numbers otherwise. The state pointer may be NULL.
 
-  The init function pointer must point to a initialization function for
-  your ethernet netif interface. The following code illustrates it's use.*/
-  netif_add(&netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+	  The init function pointer must point to a initialization function for
+	  your ethernet netif interface. The following code illustrates it's use.*/
+	  netif_add(&netif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
 
-  /*  Registers the default network interface.*/
-  netif_set_default(&netif);
+	  /*  Registers the default network interface.*/
+	  netif_set_default(&netif);
 
 
-#if LWIP_DHCP
-  /*  Creates a new DHCP client for this interface on the first call.
-  Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
-  the predefined regular intervals after starting the client.
-  You can peek in the netif->dhcp struct for the actual DHCP status.*/
-  dhcp_start(&netif);
-#endif
+	#if LWIP_DHCP
+	  /*  Creates a new DHCP client for this interface on the first call.
+	  Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
+	  the predefined regular intervals after starting the client.
+	  You can peek in the netif->dhcp struct for the actual DHCP status.*/
+	  dhcp_start(&netif);
+	#endif
 
   /*  When the netif is fully configured this function must be called.*/
   netif_set_up(&netif);
@@ -124,7 +158,9 @@ void Ethernet_Init(void)
     /* Initialize the webserver module */
     IAP_httpd_init();
 	#endif
+
 }
+
 
 /**
   * @brief  Called when a frame is received
@@ -144,9 +180,7 @@ void LwIP_Pkt_Handle(void)
   */
 void LwIP_Periodic_Handle(__IO uint32_t localtime)
 {
-
    /* Link periodic process every 250 ms */
-
   if (localtime - LinkTimer >= Link_TMR_INTERVAL)
   {
     LinkTimer =  localtime;
@@ -157,8 +191,7 @@ void LwIP_Periodic_Handle(__IO uint32_t localtime)
   if (localtime - TCPTimer >= TCP_TMR_INTERVAL)
   {
     TCPTimer =  localtime;
-    tcp_tmr();
-	//Uart_Send_Str("TCP periodic process every 250 ms...\r\n");
+    tcp_tmr(); 
   }
   /* ARP periodic process every 5s */
   if (localtime - ARPTimer >= ARP_TMR_INTERVAL)

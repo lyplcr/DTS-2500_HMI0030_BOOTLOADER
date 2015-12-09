@@ -515,6 +515,7 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 typedef enum {FAILED = 0, PASSED = !FAILED} TestStatus;
 typedef enum {NO = 0, YES = !NO} BoolStatus;
+typedef enum {OFF = 0, ON = !OFF} SwitchStatus;
 
 /**
   * @}

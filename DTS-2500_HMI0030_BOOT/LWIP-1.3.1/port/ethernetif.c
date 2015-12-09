@@ -55,10 +55,9 @@
 #include "err.h"
 #include "ethernetif.h"
 
-#include "timer.h"
+#include "bsp.h"
 #include "stm32f4x7_eth.h"
-#include <string.h>
-#include "lan8720.h"  
+ 
 
 /* TCP and ARP timeouts */
 volatile int tcp_end_time, arp_end_time;

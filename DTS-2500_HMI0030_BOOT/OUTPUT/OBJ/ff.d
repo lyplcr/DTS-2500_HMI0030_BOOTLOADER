@@ -1,5 +1,5 @@
-..\OUTPUT\OBJ\ff.o: ..\FATFS\ff.c
-..\OUTPUT\OBJ\ff.o: ..\FATFS\ff.h
-..\OUTPUT\OBJ\ff.o: ..\FATFS\integer.h
-..\OUTPUT\OBJ\ff.o: ..\FATFS\ffconf.h
-..\OUTPUT\OBJ\ff.o: ..\FATFS\diskio.h
+..\output\obj\ff.o: ..\FATFS\ff.c
+..\output\obj\ff.o: ..\FATFS\ff.h
+..\output\obj\ff.o: ..\FATFS\integer.h
+..\output\obj\ff.o: ..\FATFS\ffconf.h
+..\output\obj\ff.o: ..\FATFS\diskio.h

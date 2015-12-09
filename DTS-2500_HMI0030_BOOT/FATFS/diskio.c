@@ -6,12 +6,8 @@
 /* This is an example of glue functions to attach various exsisting      */
 /* storage control modules to the FatFs module with a defined API.       */
 /*-----------------------------------------------------------------------*/
-
-#include "stdio.h"
+#include "bsp.h"
 #include "diskio.h"
-#include "sdio_sd.h"
-#include "ustdlib.h"
-#include "pcf8563.h"
 #include "usbh_bsp_msc.h"	
 
 #define MMC		0
@@ -51,10 +47,10 @@ DSTATUS disk_initialize (
 			}
 			break;
 		case USB:
-			if(HCD_IsDeviceConnected(&USB_OTG_Core))
-			{
-				stat &= ~STA_NOINIT;
-			}
+ 			if(HCD_IsDeviceConnected(&USB_OTG_Core))
+ 			{
+ 				stat &= ~STA_NOINIT;
+ 			}
 			break;
 	}
 		
@@ -89,7 +85,11 @@ DRESULT disk_read (
 			{
 				Status = SD_ReadMultiBlocks(buff, sector << 9 , SECTOR_SIZE, count);
 			}
-			
+			if (Status != SD_OK)
+			{
+				return RES_ERROR;
+			}
+
 			#ifdef SD_DMA_MODE
 				/* SDIO工作在DMA模式，需要检查操作DMA传输是否完成 */
 				Status = SD_WaitReadOperation();
@@ -100,7 +100,7 @@ DRESULT disk_read (
 
 				while(SD_GetStatus() != SD_TRANSFER_OK);
 			#endif
-			
+				
 			if (Status != SD_OK)
 			{
 				return RES_ERROR;
@@ -109,29 +109,29 @@ DRESULT disk_read (
 			return RES_OK;
 			
 		case USB:
-			if (HCD_IsDeviceConnected(&USB_OTG_Core))
-			{
-				do
-				{
-					stat = USBH_MSC_Read10(&USB_OTG_Core, buff,sector,512 * count);
-					USBH_MSC_HandleBOTXfer(&USB_OTG_Core ,&USB_Host);
+ 			if (HCD_IsDeviceConnected(&USB_OTG_Core))
+ 			{
+ 				do
+ 				{
+ 					stat = USBH_MSC_Read10(&USB_OTG_Core, buff,sector,512 * count);
+ 					USBH_MSC_HandleBOTXfer(&USB_OTG_Core ,&USB_Host);
 
-					if (!HCD_IsDeviceConnected(&USB_OTG_Core))
-					{
-						break;
-					}
-				}
-				while (stat == USBH_MSC_BUSY );
-			}
+ 					if (!HCD_IsDeviceConnected(&USB_OTG_Core))
+ 					{
+ 						break;
+ 					}
+ 				}
+ 				while (stat == USBH_MSC_BUSY );
+ 			}
 
-			if (stat == USBH_MSC_OK)
-			{
-				res = RES_OK;
-			}
-			else
-			{
-				res = RES_ERROR;
-			}
+ 			if (stat == USBH_MSC_OK)
+ 			{
+ 				res = RES_OK;
+ 			}
+ 			else
+ 			{
+ 				res = RES_ERROR;
+ 			}
 			return res;			
 	}
 			
@@ -161,56 +161,74 @@ DRESULT disk_write (
 		case MMC:
 			if (count == 1)
 			{
-				Status = SD_WriteBlock((uint8_t *)buff, sector << 9 ,SECTOR_SIZE);				
+				Status = SD_WriteBlock((uint8_t *)buff, sector << 9 ,SECTOR_SIZE);
+
+				if (Status != SD_OK)
+				{
+					return RES_ERROR;
+				}
+
+				#ifdef SD_DMA_MODE
+					/* SDIO工作在DMA模式，需要检查操作DMA传输是否完成 */
+					Status = SD_WaitReadOperation();
+					if (Status != SD_OK)
+					{
+						return RES_ERROR;
+					}
+					while(SD_GetStatus() != SD_TRANSFER_OK);
+				#endif
+				res = RES_OK;
 			}
 			else
 			{
 				/* 此处存在疑问： 扇区个数如果写 count ，将导致最后1个block无法写入 */
-				Status = SD_WriteMultiBlocks((uint8_t *)buff, sector << 9 ,SECTOR_SIZE, count);								
-			}
-			
-			#ifdef SD_DMA_MODE
-			/* SDIO工作在DMA模式，需要检查操作DMA传输是否完成 */
-			Status = SD_WaitReadOperation();
-			if (Status != SD_OK)
-			{
-				return RES_ERROR;
-			}
-			while(SD_GetStatus() != SD_TRANSFER_OK);
-			#endif
-			
-			if (Status != SD_OK)
-			{
-				return RES_ERROR;
+				//Status = SD_WriteMultiBlocks((uint8_t *)buff, sector << 9 ,SECTOR_SIZE, count);
+				Status = SD_WriteMultiBlocks((uint8_t *)buff, sector << 9 ,SECTOR_SIZE, count + 1);
+
+				if (Status != SD_OK)
+				{
+					return RES_ERROR;
+				}
+
+				#ifdef SD_DMA_MODE
+					/* SDIO工作在DMA模式，需要检查操作DMA传输是否完成 */
+					Status = SD_WaitReadOperation();
+					if (Status != SD_OK)
+					{
+						return RES_ERROR;
+					}
+					while(SD_GetStatus() != SD_TRANSFER_OK);
+				#endif
+				res = RES_OK;
 			}
 				
 			return RES_OK;
 			
 		case USB:
-			if (HCD_IsDeviceConnected(&USB_OTG_Core))
-			{
-				do
-				{
-					stat = USBH_MSC_Write10(&USB_OTG_Core,(BYTE*)buff,sector, 512 * count);
-					USBH_MSC_HandleBOTXfer(&USB_OTG_Core, &USB_Host);
+ 			if (HCD_IsDeviceConnected(&USB_OTG_Core))
+ 			{
+ 				do
+ 				{
+ 					stat = USBH_MSC_Write10(&USB_OTG_Core,(BYTE*)buff,sector, 512 * count);
+ 					USBH_MSC_HandleBOTXfer(&USB_OTG_Core, &USB_Host);
 
-					if(!HCD_IsDeviceConnected(&USB_OTG_Core))
-					{
-						break;
-					}
-				}
-				while(stat == USBH_MSC_BUSY );
+ 					if(!HCD_IsDeviceConnected(&USB_OTG_Core))
+ 					{
+ 						break;
+ 					}
+ 				}
+ 				while(stat == USBH_MSC_BUSY );
 
-			}
+ 			}
 
-			if (stat == USBH_MSC_OK)
-			{
-				res = RES_OK;
-			}
-			else
-			{
-				res = RES_ERROR;
-			}
+ 			if (stat == USBH_MSC_OK)
+ 			{
+ 				res = RES_OK;
+ 			}
+ 			else
+ 			{
+ 				res = RES_ERROR;
+ 			}
 			return res;
 	}
 	

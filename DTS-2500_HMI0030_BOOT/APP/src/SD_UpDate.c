@@ -13,17 +13,8 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "global.h"
 #include "SD_UpDate.h"
-#include "ff.h"
-#include "lcd.h"
-#include "timer.h"
-#include <stdio.h>
-#include <stdio.h>
-#include <string.h>
-#include "flash.h"
-#include "main.h"
-#include "ustdlib.h"
-#include "config.h"
 
 
 /* Private define ------------------------------------------------------------*/
@@ -78,14 +69,14 @@ ErrorStatus SD_UpDate( void )
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"         > 欢迎使用SD卡升级系统 <",UPDATE_FONT);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	strcpy(version,"         > ");
-	strcat(version,SOFT_DISP_VERSION);
+	strcat(version,SOFT_VERSION);
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,version,UPDATE_FONT);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"========================================",UPDATE_FONT);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> 正在查找SD卡升级文件...",UPDATE_FONT);
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
@@ -98,7 +89,7 @@ ErrorStatus SD_UpDate( void )
 	}
 	
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> 准备系统升级...",UPDATE_FONT);
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
 	if (ERROR == SD_EraseFlashOperation(x,y))
@@ -112,7 +103,7 @@ ErrorStatus SD_UpDate( void )
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> 正在写入文件...",UPDATE_FONT);
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
 	if (ERROR == SD_UpdateExecute(x,y))
@@ -338,7 +329,7 @@ ErrorStatus SD_EraseFlashOperation( uint16_t x, uint16_t y )
 		lcd_font24(x,y,COLOR_POINT,COLOR_BACK,buff,UPDATE_FONT);
 	}
 	
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"100%",UPDATE_FONT);
 	
 	FLASH_Lock(); 

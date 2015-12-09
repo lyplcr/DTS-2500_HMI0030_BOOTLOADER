@@ -1,2 +1,2 @@
-..\OUTPUT\OBJ\isqrt.o: ..\utils\isqrt.c
-..\OUTPUT\OBJ\isqrt.o: ..\utils\isqrt.h
+..\output\obj\isqrt.o: ..\UTILS\src\isqrt.c
+..\output\obj\isqrt.o: ..\UTILS\inc\isqrt.h

@@ -20,16 +20,10 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "global.h"
 #include "tftpserver.h"
 #include "flash_if.h"
-#include <string.h>
-#include <stdio.h>
-#include "main.h"
-#include "lcd.h"
-#include "config.h"
-#include "ustdlib.h"
-#include "timer.h"
-#include "netconf.h"
+#include "stm32f4x7_eth.h"
 
 #define UPDATE_FONT				"song24.zk"
 
@@ -91,7 +85,7 @@ ErrorStatus UDP_Update( void )
 	lcd_font24(udp_lcd_x,udp_lcd_y,COLOR_POINT,COLOR_BACK,"         > 欢迎使用以太网升级系统 <",UPDATE_FONT);
 	udp_lcd_y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	strcpy(version,"         > ");
-	strcat(version,SOFT_DISP_VERSION);
+	strcat(version,SOFT_VERSION);
 	lcd_font24(udp_lcd_x,udp_lcd_y,COLOR_POINT,COLOR_BACK,version,UPDATE_FONT);
 	udp_lcd_y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	lcd_font24(udp_lcd_x,udp_lcd_y,COLOR_POINT,COLOR_BACK,"========================================",UPDATE_FONT);
@@ -99,10 +93,25 @@ ErrorStatus UDP_Update( void )
 	lcd_font24(udp_lcd_x,udp_lcd_y,COLOR_POINT,COLOR_BACK,"> 正在尝试连接电脑...",UPDATE_FONT);
 	udp_lcd_y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
+	#ifdef USE_IAP_HTTP
+		/* Initialize the webserver module */
+		IAP_httpd_init();
+	#endif
+
 	#ifdef USE_IAP_TFTP    
-    /* Initialize the TFTP server */
-    IAP_tftpd_init();
+		/* Initialize the TFTP server */
+		IAP_tftpd_init();
 	#endif 
+	
+	while (1)
+	{
+		if (GetEthLinkStatus() == YES)
+		{
+			lcd_font24(udp_lcd_x,udp_lcd_y,COLOR_POINT,COLOR_BACK,"> 连接电脑成功。请点击电脑端 Put 按钮，完成升级！",UPDATE_FONT);
+			udp_lcd_y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;			
+			break;
+		}
+	}
 	
 	while (1)
 	{
@@ -155,7 +164,7 @@ void UDP_EraseFlashCue( uint8_t process )
 			lcd_font24(udp_lcd_x,udp_lcd_y,COLOR_POINT,COLOR_BACK,"> 正在擦除flash...",UPDATE_FONT);
 			break;
 		case 100:
-			delay_ms(DELAY_TIME);
+			bsp_DelayMS(DELAY_TIME);
 			lcd_font24(udp_lcd_x+216,udp_lcd_y,COLOR_POINT,COLOR_BACK,"100%",UPDATE_FONT);
 			udp_lcd_y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 			break;
@@ -281,7 +290,7 @@ static void IAP_wrq_recv_callback(void *_args, struct udp_pcb *upcb, struct pbuf
   tftp_connection_args *args = (tftp_connection_args *)_args;
   uint32_t data_buffer[128];
   u16 count=0;
-  static uint16_t process = 0;
+  static uint32_t process = 0;
   static uint16_t process_x = UPDATE_WORD_START_X;
   char buff[10];
   static uint16_t process_buff = 0;

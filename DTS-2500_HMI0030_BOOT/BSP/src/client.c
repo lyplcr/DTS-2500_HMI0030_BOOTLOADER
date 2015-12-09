@@ -19,13 +19,13 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "bsp.h"
 #include "client.h"
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
 #include "lwip/pbuf.h"
-#include "CONFIG.H"
-#include <string.h>
-#include <stdio.h>
+
+
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,30 +34,30 @@
 #define TCP_PORT      4
 
 /* Private define ------------------------------------------------------------*/
-#define PACKAGE_BUFF_SIZE			1024
+#define PACKAGE_BUFF_SIZE			500
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 __IO static uint8_t 	udp_rx_buf[PACKAGE_BUFF_SIZE];		//接收包数据缓存
 __IO static uint8_t 	udp_tx_buf[PACKAGE_BUFF_SIZE];		//发送包数据缓存
 
-__IO static uint16_t 	rx_pkg_len=0;						//接收包长度
-__IO static BoolStatus 	HandlerRxData = YES;				//处理接收到的数据标志
+__IO static uint16_t 	g_udpRxDataLenth = 0;				//接收包长度
+__IO static BoolStatus 	g_flagUntreatedData = NO;			//未处理数据
 
-static struct ip_addr DestAddr;							//目标IP地址
-static unsigned short DestPort;							//目标端口
+__IO static struct ip_addr DestAddr;						//目标IP地址
+__IO static unsigned short DestPort;						//目标端口
 
 static struct udp_pcb *UdpPcb = NULL;	
-static struct pbuf *pbuf_p = NULL;							//发送pbuf
+static struct pbuf *pbuf_p = NULL;						//发送pbuf
 
-struct pbuf pp;
+__IO static BoolStatus g_BindingTarget = NO;
 
 /* Private function prototypes -----------------------------------------------*/
 void udp_client_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, struct ip_addr *addr, u16_t port);
 err_t tcp_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err);
 void tcp_client_err(void *arg, err_t err);
 err_t tcp_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
-void GetDataFromEthernet( __IO uint8_t *pBuff, struct pbuf *p);
+static void GetDataFromEthernet( __IO uint8_t *pBuff, struct pbuf *p);
 
 
 
@@ -71,13 +71,19 @@ void GetDataFromEthernet( __IO uint8_t *pBuff, struct pbuf *p);
   */
 void client_init(void)
 {
-   struct pbuf *p;
-                                  
+   struct pbuf *p;					
+	
    /* Create a new UDP control block  */
    UdpPcb = udp_new();   
-   
-   /* Connect the upcb  */
+	
+	/* Connect the upcb  */
    udp_connect(UdpPcb, IP_ADDR_BROADCAST, UDP_SERVER_PORT);
+   
+   /* Bind the upcb to any IP address and the UDP_PORT port*/
+   udp_bind(UdpPcb, IP_ADDR_ANY, UDP_CLIENT_PORT);
+   
+   /* Set a receive callback for the upcb */
+   udp_recv(UdpPcb, udp_client_callback, NULL);
 
    p = pbuf_alloc(PBUF_TRANSPORT, 0, PBUF_RAM);
 
@@ -87,14 +93,8 @@ void client_init(void)
    /* Reset the upcb */
    udp_disconnect(UdpPcb);
    
-   /* Bind the upcb to any IP address and the UDP_PORT port*/
-   udp_bind(UdpPcb, IP_ADDR_ANY, UDP_CLIENT_PORT);
-   
-   /* Set a receive callback for the upcb */
-   udp_recv(UdpPcb, udp_client_callback, NULL);
-
    /* Free the p buffer */
-   pbuf_free(p); 
+  pbuf_free(p); 
 
 }
 
@@ -109,19 +109,30 @@ void client_init(void)
   */
 void udp_client_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, struct ip_addr *addr, u16_t port)
 {
-	DestAddr = *addr;
-	DestPort = port;
-	
 	if (p != NULL)
 	{
-		if (HandlerRxData == YES)
-		{
-			rx_pkg_len = p->tot_len;
-			GetDataFromEthernet(udp_rx_buf,p);						
-			HandlerRxData = NO;
+		if (g_BindingTarget == NO)
+		{			
+			DestAddr = *addr;
+			DestPort = port;
 		}
-		pp = *p;
-//		udp_sendto(UdpPcb,p,&DestAddr,DestPort);
+		else	
+		{
+			if ((DestAddr.addr!=addr->addr) || (DestPort!=port))
+			{
+				pbuf_free(p);	
+				
+				return;
+			}
+		}
+	
+		if (g_flagUntreatedData == NO)
+		{
+			g_udpRxDataLenth = p->tot_len;
+			GetDataFromEthernet(udp_rx_buf,p);	
+			
+			g_flagUntreatedData = YES;		/* 防止新的数据包覆盖未处理的数据包 */
+		}
 		
 		/* Free the p buffer */
  		pbuf_free(p);				
@@ -130,13 +141,25 @@ void udp_client_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, struct
 
 
 /*------------------------------------------------------------
+ * Function Name  : SetBindingPort
+ * Description    : 绑定端口
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *------------------------------------------------------------*/
+void SetBindingPort( void )
+{
+	g_BindingTarget = YES;
+}
+
+/*------------------------------------------------------------
  * Function Name  : GetDataFromEthernet
  * Description    : 从以太网获取收到的数据包
  * Input          : None
  * Output         : None
  * Return         : None
  *------------------------------------------------------------*/
-void GetDataFromEthernet( __IO uint8_t *pBuff, struct pbuf *p)
+static void GetDataFromEthernet( __IO uint8_t *pBuff, struct pbuf *p)
 {
 	__IO uint8_t *pdata = NULL;
 	struct pbuf *pFrame = p;
@@ -154,18 +177,28 @@ void GetDataFromEthernet( __IO uint8_t *pBuff, struct pbuf *p)
 	}
 }
 
-
-
 /*------------------------------------------------------------
- * Function Name  : GetDataStartAddrFromEthernet
- * Description    : 从以太网获取数据包起始地址
+ * Function Name  : GetEthernetRxDataAddr
+ * Description    : 获取以太网接收数据地址
  * Input          : None
  * Output         : None
  * Return         : None
  *------------------------------------------------------------*/
-void * GetDataStartAddrFromEthernet( void )
+void * GetEthernetRxDataAddr( void )
 {
 	return ((void *)udp_rx_buf);
+}
+
+/*------------------------------------------------------------
+ * Function Name  : GetEthernetTxDataAddr
+ * Description    : 获取以太网发送数据地址
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *------------------------------------------------------------*/
+void * GetEthernetTxDataAddr( void )
+{
+	return ((void *)udp_tx_buf);
 }
 
 /*------------------------------------------------------------
@@ -179,33 +212,33 @@ void UDP_SendStr(void *str_p, uint16_t len)
 { 
 	pbuf_p = pbuf_alloc(PBUF_RAW,len,PBUF_RAM);
 	pbuf_p->payload = (void *)str_p; 
-	udp_sendto(UdpPcb,pbuf_p,&DestAddr,DestPort);     
+	udp_sendto(UdpPcb,pbuf_p,(struct ip_addr *)&DestAddr,DestPort);     
 	pbuf_free(pbuf_p); 
 }
 
 
 /*------------------------------------------------------------
- * Function Name  : SetRxDataHandlerStatus
- * Description    : 设置接收数据已处理状态
+ * Function Name  : UDP_SetUntreatedDataStatus
+ * Description    : 设置未处理数据状态
  * Input          : None
  * Output         : None
  * Return         : None
  *------------------------------------------------------------*/
-void UDP_SetRxDataHandlerStatus( BoolStatus NewStatus )
+void UDP_SetUntreatedDataStatus( BoolStatus NewStatus )
 {
-	HandlerRxData = NewStatus;
+	g_flagUntreatedData = NewStatus;
 }
 
 /*------------------------------------------------------------
- * Function Name  : GetRxDataHandlerStatus
- * Description    : 获取接收数据已处理状态
+ * Function Name  : UDP_IsFindUntreatedData
+ * Description    : 是否发现未处理数据
  * Input          : None
  * Output         : None
  * Return         : None
  *------------------------------------------------------------*/
-BoolStatus UDP_GetRxDataHandlerStatus( void )
+BoolStatus UDP_IsFindUntreatedData( void )
 {
-	return HandlerRxData;
+	return g_flagUntreatedData;
 }
 
 /*------------------------------------------------------------
@@ -217,7 +250,7 @@ BoolStatus UDP_GetRxDataHandlerStatus( void )
  *------------------------------------------------------------*/
 uint16_t UDP_GetDataLen( void )
 {
-	return rx_pkg_len;
+	return g_udpRxDataLenth;
 }
 
 /******************* (C) COPYRIGHT 2009 STMicroelectronics *****END OF FILE****/

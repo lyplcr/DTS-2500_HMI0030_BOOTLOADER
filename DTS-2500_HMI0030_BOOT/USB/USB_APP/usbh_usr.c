@@ -26,16 +26,14 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "bsp.h"
 #include "usbh_usr.h"
-#include <string.h>
-#include "ff.h"       /* FATFS */
 #include "usbh_msc_core.h"
 #include "usbh_msc_scsi.h"
 #include "usbh_msc_bot.h"
-#include "my_debug.h"
 
-#define usb_printf	DEBUG
-//#define usb_printf	printf
+
+
 
 USB_OTG_CORE_HANDLE   USB_OTG_Core;
 USBH_HOST             USB_Host;
@@ -74,22 +72,22 @@ USBH_Usr_cb_TypeDef USR_cb =
 * @{
 */
 /*--------------- LCD Messages ---------------*/
-const uint8_t MSG_HOST_INIT[]        = "> Host Library Initialized\r\n";
-const uint8_t MSG_DEV_ATTACHED[]     = "> Device Attached \r\n";
-const uint8_t MSG_DEV_DISCONNECTED[] = "> Device Disconnected\r\n";
-const uint8_t MSG_DEV_ENUMERATED[]   = "> Enumeration completed \r\n";
-const uint8_t MSG_DEV_HIGHSPEED[]    = "> High speed device detected\r\n";
-const uint8_t MSG_DEV_FULLSPEED[]    = "> Full speed device detected\r\n";
-const uint8_t MSG_DEV_LOWSPEED[]     = "> Low speed device detected\r\n";
-const uint8_t MSG_DEV_ERROR[]        = "> Device fault \r\n";
+const char *MSG_HOST_INIT        = "> Host Library Initialized\r\n";
+const char *MSG_DEV_ATTACHED     = "> Device Attached \r\n";
+const char *MSG_DEV_DISCONNECTED = "> Device Disconnected\r\n";
+const char *MSG_DEV_ENUMERATED   = "> Enumeration completed \r\n";
+const char *MSG_DEV_HIGHSPEED    = "> High speed device detected\r\n";
+const char *MSG_DEV_FULLSPEED    = "> Full speed device detected\r\n";
+const char *MSG_DEV_LOWSPEED     = "> Low speed device detected\r\n";
+const char *MSG_DEV_ERROR        = "> Device fault \r\n";
 
-const uint8_t MSG_MSC_CLASS[]        = "> Mass storage device connected\r\n";
-const uint8_t MSG_HID_CLASS[]        = "> HID device connected\r\n";
-const uint8_t MSG_DISK_SIZE[]        = "> Size of the disk in MBytes: \r\n";
-const uint8_t MSG_LUN[]              = "> LUN Available in the device:\r\n";
-const uint8_t MSG_ROOT_CONT[]        = "> Exploring disk flash ...\r\n";
-const uint8_t MSG_WR_PROTECT[]       = "> The disk is write protected\r\n";
-const uint8_t MSG_UNREC_ERROR[]      = "> UNRECOVERED ERROR STATE\r\n";
+const char *MSG_MSC_CLASS        = "> Mass storage device connected\r\n";
+const char *MSG_HID_CLASS        = "> HID device connected\r\n";
+const char *MSG_DISK_SIZE        = "> Size of the disk in MBytes: \r\n";
+const char *MSG_LUN              = "> LUN Available in the device:\r\n";
+const char *MSG_ROOT_CONT        = "> Exploring disk flash ...\r\n";
+const char *MSG_WR_PROTECT       = "> The disk is write protected\r\n";
+const char *MSG_UNREC_ERROR      = "> UNRECOVERED ERROR STATE\r\n";
 
 static uint8_t status_usb_insert = 0;
 
@@ -135,14 +133,16 @@ void USBH_USR_Init(void)
 	if(startup == 0 )
 	{
 		startup = 1;
-
-		#ifdef USE_USB_OTG_HS
-			usb_printf("> USB OTG HS MSC Host\r\n");
-		#else
-			usb_printf("> USB OTG FS MSC Host\r\n");
+		#ifdef DEBUG_USB
+			#ifdef USE_USB_OTG_HS
+				printf("> USB OTG HS MSC Host\r\n");
+			#else
+				printf("> USB OTG FS MSC Host\r\n");
+			#endif
+			printf("> USB Host library started\r\n");
+			printf("> USB Host Library v2.1.0\r\n" );
 		#endif
-		usb_printf("> USB Host library started.\r\n");
-		usb_printf ("     USB Host Library v2.1.0\r\n" );
+		
 	}
 }
 
@@ -154,7 +154,9 @@ void USBH_USR_Init(void)
 */
 void USBH_USR_DeviceAttached(void)
 {
-	usb_printf((char *)MSG_DEV_ATTACHED);
+	#ifdef DEBUG_USB
+		printf("> Device Attached\r\n");
+	#endif
 }
 
 
@@ -165,7 +167,9 @@ void USBH_USR_DeviceAttached(void)
 */
 void USBH_USR_UnrecoveredError (void)
 {
-	usb_printf((char *)MSG_UNREC_ERROR);
+	#ifdef DEBUG_USB
+		printf("> UNRECOVERED ERROR STATE\r\n");
+	#endif
 }
 
 
@@ -177,7 +181,9 @@ void USBH_USR_UnrecoveredError (void)
 */
 void USBH_USR_DeviceDisconnected (void)
 {
-	usb_printf((char *)MSG_DEV_DISCONNECTED);
+	#ifdef DEBUG_USB
+		printf("> Device Disconnected\r\n");
+	#endif
 	status_usb_insert = 0;
 }
 /**
@@ -188,7 +194,9 @@ void USBH_USR_DeviceDisconnected (void)
 void USBH_USR_ResetDevice(void)
 {
 	/* callback for USB-Reset */
-	usb_printf("> USBH_USR_ResetDevice \r\n");
+	#ifdef DEBUG_USB
+		printf("> USBH_USR_ResetDevice\r\n");
+	#endif
 }
 
 
@@ -202,19 +210,28 @@ void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 {
 	if (DeviceSpeed == HPRT0_PRTSPD_HIGH_SPEED)
 	{
-		usb_printf((char *)MSG_DEV_HIGHSPEED);
+		#ifdef DEBUG_USB
+			printf("> High speed device detected\r\n");
+		#endif
 	}
 	else if(DeviceSpeed == HPRT0_PRTSPD_FULL_SPEED)
 	{
-		usb_printf((char *)MSG_DEV_FULLSPEED);
+		#ifdef DEBUG_USB
+			printf("> Full speed device detected\r\n");
+		#endif
 	}
 	else if(DeviceSpeed == HPRT0_PRTSPD_LOW_SPEED)
 	{
-		usb_printf((char *)MSG_DEV_LOWSPEED);
+
+		#ifdef DEBUG_USB
+			printf("> Low speed device detected\r\n");
+		#endif
 	}
 	else
 	{
-		usb_printf((char *)MSG_DEV_ERROR);
+		#ifdef DEBUG_USB
+			printf("> Device fault\r\n");
+		#endif
 	}
 }
 
@@ -226,11 +243,14 @@ void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 */
 void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 {
-	USBH_DevDesc_TypeDef *hs;
-	hs = DeviceDesc;
+	USBH_DevDesc_TypeDef *hs = DeviceDesc;
+	
+	hs = hs;
 
-	usb_printf("> VID : %04Xh\r\n" , (uint32_t)(*hs).idVendor);
-	usb_printf("> PID : %04Xh\r\n" , (uint32_t)(*hs).idProduct);
+	#ifdef DEBUG_USB
+		printf("> VID : %04Xh\r\n" , (uint32_t)(*hs).idVendor);
+		printf("> PID : %04Xh\r\n" , (uint32_t)(*hs).idProduct);
+	#endif
 }
 
 /**
@@ -244,6 +264,25 @@ void USBH_USR_DeviceAddressAssigned(void)
 
 }
 
+/*------------------------------------------------------------
+ * Function Name  : USB_ReadyCycle
+ * Description    : USB准备
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *------------------------------------------------------------*/
+void USB_ReadyCycle( void )
+{
+	uint32_t num = 0;
+	const uint32_t USB_STATUS_CYCLE_NUM = 50000;		//USB循环体必须达到此次数才能操作
+	
+	while (num < USB_STATUS_CYCLE_NUM)
+	{
+		num++;
+		
+		USBH_Process(&USB_OTG_Core, &USB_Host);	//执行一定次数才可以改变读写U盘状态位
+	}
+}
 
 /**
 * @brief  USBH_USR_Conf_Desc
@@ -256,16 +295,20 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
                                           USBH_EpDesc_TypeDef *epDesc)
 {
 	USBH_InterfaceDesc_TypeDef *id;
-
+	
 	id = itfDesc;
 
 	if((*id).bInterfaceClass  == 0x08)
 	{
-		usb_printf((char *)MSG_MSC_CLASS);
+		#ifdef DEBUG_USB
+			printf("> Mass storage device connected\r\n");
+		#endif
 	}
 	else if((*id).bInterfaceClass  == 0x03)
 	{
-		usb_printf((char *)MSG_HID_CLASS);
+		#ifdef DEBUG_USB
+			printf("> HID device connected\r\n");
+		#endif
 	}
 	
 	status_usb_insert = 1;
@@ -279,7 +322,9 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
 */
 void USBH_USR_Manufacturer_String(void *ManufacturerString)
 {
-	usb_printf("> Manufacturer : %sr\r\n", (char *)ManufacturerString);
+	#ifdef DEBUG_USB
+		printf("> Manufacturer : %s\r\n", (char *)ManufacturerString);
+	#endif
 }
 
 /**
@@ -290,7 +335,9 @@ void USBH_USR_Manufacturer_String(void *ManufacturerString)
 */
 void USBH_USR_Product_String(void *ProductString)
 {
-	usb_printf("> Product : %s\r\n", (char *)ProductString);
+	#ifdef DEBUG_USB
+		printf("> Product : %s\r\n", (char *)ProductString);
+	#endif
 }
 
 /**
@@ -301,7 +348,9 @@ void USBH_USR_Product_String(void *ProductString)
 */
 void USBH_USR_SerialNum_String(void *SerialNumString)
 {
-	usb_printf( "> Serial Number : %s\r\n", (char *)SerialNumString);
+	#ifdef DEBUG_USB
+		printf( "> Serial Number : %s\r\n", (char *)SerialNumString);
+	#endif
 }
 
 /**
@@ -313,7 +362,9 @@ void USBH_USR_SerialNum_String(void *SerialNumString)
 void USBH_USR_EnumerationDone(void)
 {
 	/* Enumeration complete */
-	usb_printf((void *)MSG_DEV_ENUMERATED);
+	#ifdef DEBUG_USB
+		printf ("> Enumeration completed\r\n");
+	#endif
 }
 
 
@@ -324,8 +375,10 @@ void USBH_USR_EnumerationDone(void)
 * @retval None
 */
 void USBH_USR_DeviceNotSupported(void)
-{
-	usb_printf ("> Device not supported.\r\n");
+{	
+	#ifdef DEBUG_USB
+		printf ("> Device not supported\r\n");
+	#endif
 }
 
 /**
@@ -366,7 +419,9 @@ USBH_USR_Status USBH_USR_UserInput(void)
 */
 void USBH_USR_OverCurrentDetected (void)
 {
-	usb_printf("> Overcurrent detected.\r\n");
+	#ifdef DEBUG_USB
+		printf("> Overcurrent detected\r\n");
+	#endif
 }
 
 /**

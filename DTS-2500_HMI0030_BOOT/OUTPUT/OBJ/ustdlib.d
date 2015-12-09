@@ -1,4 +1,4 @@
-..\OUTPUT\OBJ\ustdlib.o: ..\utils\ustdlib.c
-..\OUTPUT\OBJ\ustdlib.o: C:\Keil\ARM\ARMCC\bin\..\include\string.h
-..\OUTPUT\OBJ\ustdlib.o: ..\utils\ustdlib.h
-..\OUTPUT\OBJ\ustdlib.o: C:\Keil\ARM\ARMCC\bin\..\include\stdarg.h
+..\output\obj\ustdlib.o: ..\UTILS\src\ustdlib.c
+..\output\obj\ustdlib.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+..\output\obj\ustdlib.o: ..\UTILS\inc\ustdlib.h
+..\output\obj\ustdlib.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h

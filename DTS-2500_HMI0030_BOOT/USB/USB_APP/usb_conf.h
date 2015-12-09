@@ -105,7 +105,7 @@
 *     STM32 device datasheet.
 *******************************************************************************/
 #ifndef USE_USB_OTG_HS
- //#define USE_USB_OTG_HS
+// #define USE_USB_OTG_HS
 #endif /* USE_USB_OTG_HS */
 
 #ifndef USE_ULPI_PHY

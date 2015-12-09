@@ -55,7 +55,7 @@
 /* This option switches fast seek feature. (0:Disable or 1:Enable) */
 
 
-#define _USE_LABEL		0
+#define _USE_LABEL		1
 /* This option switches volume label functions, f_getlabel() and f_setlabel().
 /  (0:Disable or 1:Enable) */
 
@@ -115,7 +115,7 @@
 /  to 1. This option also affects behavior of string I/O functions. */
 
 
-#define _STRF_ENCODE	0
+#define _STRF_ENCODE	3
 /* When _LFN_UNICODE is 1, this option selects the character encoding on the file to
 /  be read/written via string I/O functions, f_gets(), f_putc(), f_puts and f_printf().
 /

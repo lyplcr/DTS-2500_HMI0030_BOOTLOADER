@@ -33,7 +33,6 @@
 #include "usbh_def.h"
 #include "usb_hcd_int.h"
 
-
 /** @addtogroup USBH_LIB
 * @{
 */
@@ -129,13 +128,13 @@ USBH_BOTXfer_TypeDef USBH_MSC_BOTXferParam;
 * @retval None
 */
 void USBH_MSC_Init(USB_OTG_CORE_HANDLE *pdev )
-{
+{	
   if(HCD_IsDeviceConnected(pdev))
   {      
     USBH_MSC_CBWData.field.CBWSignature = USBH_MSC_BOT_CBW_SIGNATURE;
     USBH_MSC_CBWData.field.CBWTag = USBH_MSC_BOT_CBW_TAG;
     USBH_MSC_CBWData.field.CBWLUN = 0;  /*Only one LUN is supported*/
-    USBH_MSC_BOTXferParam.CmdStateMachine = CMD_SEND_STATE;  
+    USBH_MSC_BOTXferParam.CmdStateMachine = CMD_SEND_STATE;
   }
   
   BOTStallErrorCount = 0;

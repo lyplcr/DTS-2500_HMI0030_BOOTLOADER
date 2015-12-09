@@ -78,7 +78,7 @@
 //#define PHY_SPEED_STATUS            ((uint16_t)0x0002) /* Value for DP83848 PHY */
 //#define PHY_DUPLEX_STATUS           ((uint16_t)0x0004) /* Value for DP83848 PHY */
 #define PHY_SPEED_STATUS            ((uint16_t)0x0004) /*LAN8720 PHY速度值*/
-#define PHY_DUPLEX_STATUS           ((uint16_t)0x00010) /*LAN8720 PHY连接状态值*/  
+#define PHY_DUPLEX_STATUS           ((uint16_t)0x0010) /*LAN8720 PHY连接状态值*/  
    
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */  

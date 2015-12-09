@@ -13,19 +13,10 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "global.h"
 #include "USB_UpDate.h"
-#include "ff.h"
-#include "lcd.h"
-#include "timer.h"
-#include <stdio.h>
-#include <string.h>
-#include "flash.h"
-#include "main.h"
-#include "ustdlib.h"
 #include "usbh_bsp_msc.h"
-#include "key.h"
-#include "config.h"
-#include "usb.h"
+
 
 /* Private define ------------------------------------------------------------*/
 #define USB_UPDATE_FILE_PATH		"1:/update"
@@ -83,7 +74,7 @@ UPDATE_STATUS_TypeDef USB_UpDate( void )
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"         > 欢迎使用U盘升级系统 <",UPDATE_FONT);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	strcpy(version,"         > ");
-	strcat(version,SOFT_DISP_VERSION);
+	strcat(version,SOFT_VERSION);
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,version,UPDATE_FONT);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"========================================",UPDATE_FONT);
@@ -97,7 +88,7 @@ UPDATE_STATUS_TypeDef USB_UpDate( void )
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> 正在查找USB升级文件...",UPDATE_FONT);
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
@@ -110,7 +101,7 @@ UPDATE_STATUS_TypeDef USB_UpDate( void )
 	}
 	
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> 准备系统升级...",UPDATE_FONT);
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
 	if (ERROR == USB_EraseFlashOperation(x,y))
@@ -124,7 +115,7 @@ UPDATE_STATUS_TypeDef USB_UpDate( void )
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> 正在写入文件...",UPDATE_FONT);
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	y += UPDATE_WORD_SIZE + UPDATE_ROW_DISTANCE;
 	if (ERROR ==USB_UpdateExecute(x,y))
 	{
@@ -151,13 +142,7 @@ UPDATE_STATUS_TypeDef USB_UpDate( void )
  *------------------------------------------------------------*/
 void USB_EscProcess( void )
 {
-	uint16_t i = 0;
-	
-	while (i < USB_LEAVE_SYNC_NUM)
-	{
-		USBH_Process(&USB_OTG_Core, &USB_Host);	
-		i++;
-	}
+	USB_ReadyCycle();
 }
 
 
@@ -181,7 +166,6 @@ UPDATE_STATUS_TypeDef USB_WaitInsert( uint16_t x, uint16_t y )
 			case 0:
 				if (Get_USB_Status() == SUCCESS)
 				{
-					get_key(0x00000000);
 					lcd_fill(618,450,120,24,COLOR_BACK);
 					lcd_fill(x,y,480,24,COLOR_BACK);	
 					lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> U盘已正确连接！",UPDATE_FONT);
@@ -201,16 +185,17 @@ UPDATE_STATUS_TypeDef USB_WaitInsert( uint16_t x, uint16_t y )
 				}
 				else
 				{
-					if (get_key(0x00000000) == KEY_F4)
+					if (GetKey() == KEY_F4)
 					{
 						lcd_clear(COLOR_BACK);
-						get_key(0x00000000);	//熄灭按键灯
+
 						return UPDATE_ABABDON;
 					}
 				}
 				break;
 			case 2:
-				USB_Init();	
+				bsp_InitUSB();	
+			
 				return UPDATE_OK;
 		}
 	}
@@ -426,7 +411,7 @@ ErrorStatus USB_EraseFlashOperation( uint16_t x, uint16_t y )
 		lcd_font24(x,y,COLOR_POINT,COLOR_BACK,buff,UPDATE_FONT);
 	}
 	
-	delay_ms(DELAY_TIME);
+	bsp_DelayMS(DELAY_TIME);
 	lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"100%",UPDATE_FONT);
 	
 	FLASH_Lock(); 

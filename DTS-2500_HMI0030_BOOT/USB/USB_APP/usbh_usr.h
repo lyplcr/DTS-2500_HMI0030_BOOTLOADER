@@ -117,7 +117,8 @@ void USBH_USR_DeInit(void);
 void USBH_USR_DeviceNotSupported(void);
 void USBH_USR_UnrecoveredError(void);
 int USBH_USR_MSC_Application(void);
-ErrorStatus Get_USB_Status( void );
+
+void USB_ReadyCycle( void );
 
 /**
   * @}

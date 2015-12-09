@@ -29,9 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
-#include "stm32f4x7_eth.h"
 
- #include "netconf.h"
 
 /** @addtogroup Template_Project
   * @{

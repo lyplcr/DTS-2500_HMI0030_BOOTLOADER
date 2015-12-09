@@ -26,12 +26,13 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-#include "stm32f4xx.h" 
+
 /* Includes ------------------------------------------------------------------*/
-void Ethernet_Init(void);
+void bsp_InitEthernet(void);
 void LwIP_Pkt_Handle(void);
 void LwIP_Periodic_Handle(__IO uint32_t localtime);
-void Link_tmr(void);  //LT
+void Link_tmr(void);  
+BoolStatus GetEthLinkStatus( void );
 
 #ifdef __cplusplus
 }

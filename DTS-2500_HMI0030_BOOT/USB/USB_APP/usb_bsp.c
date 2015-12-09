@@ -26,9 +26,9 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
-
+#include "bsp.h"
 #include "usb_bsp.h"
-#include "timer.h"
+
 
 /** @addtogroup USBH_USER
 * @{
@@ -317,29 +317,6 @@ void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 }
 
 /**
-  * @brief  USB_OTG_BSP_EnableInterrupt
-  *         Configures USB Global interrupt
-  * @param  None
-  * @retval None
-  */
-void USB_OTG_BSP_DisableInterrupt(void)
-{
-  NVIC_InitTypeDef NVIC_InitStructure; 
-  
-//   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-#ifdef USE_USB_OTG_HS   
-  NVIC_InitStructure.NVIC_IRQChannel = OTG_HS_IRQn;
-#else
-  NVIC_InitStructure.NVIC_IRQChannel = OTG_FS_IRQn;  
-#endif
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
-  NVIC_Init(&NVIC_InitStructure);  
-
-}
-
-/**
   * @brief  BSP_Drive_VBUS
   *         Drives the Vbus signal through IO
   * @param  state : VBUS states
@@ -455,7 +432,7 @@ void  USB_OTG_BSP_ConfigVBUS(USB_OTG_CORE_HANDLE *pdev)
   */
 void USB_OTG_BSP_uDelay (const uint32_t usec)
 {
-  delay_us(usec);
+  bsp_DelayUS(usec);
 // #ifdef USE_ACCURATE_TIME    
 //   BSP_Delay(usec,TIM_USEC_DELAY); 
 // #else
@@ -487,7 +464,7 @@ void USB_OTG_BSP_mDelay (const uint32_t msec)
 // #else
 //     USB_OTG_BSP_uDelay(msec * 1000);   
 // #endif    
-	delay_ms(msec);
+	bsp_DelayMS(msec);
 }
 
 
