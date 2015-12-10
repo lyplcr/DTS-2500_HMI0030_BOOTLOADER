@@ -166,7 +166,7 @@ UPDATE_STATUS_TypeDef USB_WaitInsert( uint16_t x, uint16_t y )
 			case 0:
 				if (Get_USB_Status() == SUCCESS)
 				{
-					lcd_fill(618,450,120,24,COLOR_BACK);
+					lcd_fill(0,450,800,24,COLOR_BACK);
 					lcd_fill(x,y,480,24,COLOR_BACK);	
 					lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> U盘已正确连接！",UPDATE_FONT);
 					status = 2;
@@ -174,7 +174,8 @@ UPDATE_STATUS_TypeDef USB_WaitInsert( uint16_t x, uint16_t y )
 				else
 				{
 					lcd_font24(x,y,COLOR_POINT,COLOR_BACK,"> 未检测到U盘，请插入...",UPDATE_FONT);
-					lcd_font24(618,450,COLOR_POINT,DARK_BLUE,"以太网升级",UPDATE_FONT);
+					lcd_font24(418,450,COLOR_POINT,DARK_BLUE,"以太网升级",UPDATE_FONT);
+					lcd_font24(618,450,COLOR_POINT,DARK_BLUE,"退出升级",UPDATE_FONT);
 					status = 1;
 				}
 				break;
@@ -185,11 +186,15 @@ UPDATE_STATUS_TypeDef USB_WaitInsert( uint16_t x, uint16_t y )
 				}
 				else
 				{
-					if (GetKey() == KEY_F4)
+					switch ( GetKey() )
 					{
-						lcd_clear(COLOR_BACK);
+						case KEY_F3:
+							lcd_clear(COLOR_BACK);
 
-						return UPDATE_ABABDON;
+							return UPDATE_ABABDON;
+						case KEY_F4:
+							SystemSoftwareReset();
+							break;
 					}
 				}
 				break;

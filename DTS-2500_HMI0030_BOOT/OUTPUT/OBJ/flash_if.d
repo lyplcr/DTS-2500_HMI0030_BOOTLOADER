@@ -65,6 +65,7 @@
 ..\output\obj\flash_if.o: ..\BSP\inc\bsp_uid.h
 ..\output\obj\flash_if.o: ..\BSP\inc\bsp_lan8720.h
 ..\output\obj\flash_if.o: ..\BSP\inc\bsp_print.h
+..\output\obj\flash_if.o: ..\BSP\inc\bsp_rtc.h
 ..\output\obj\flash_if.o: ..\UTILS\inc\usb.h
 ..\output\obj\flash_if.o: ..\BSP\inc\netconf.h
 ..\output\obj\flash_if.o: ..\APP\inc\tftpserver.h

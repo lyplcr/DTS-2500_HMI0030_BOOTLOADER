@@ -64,6 +64,7 @@
 ..\output\obj\tftpserver.o: ..\BSP\inc\bsp_uid.h
 ..\output\obj\tftpserver.o: ..\BSP\inc\bsp_lan8720.h
 ..\output\obj\tftpserver.o: ..\BSP\inc\bsp_print.h
+..\output\obj\tftpserver.o: ..\BSP\inc\bsp_rtc.h
 ..\output\obj\tftpserver.o: ..\UTILS\inc\usb.h
 ..\output\obj\tftpserver.o: ..\BSP\inc\netconf.h
 ..\output\obj\tftpserver.o: ..\APP\inc\tftpserver.h

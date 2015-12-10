@@ -64,6 +64,7 @@
 ..\output\obj\usb_update.o: ..\BSP\inc\bsp_uid.h
 ..\output\obj\usb_update.o: ..\BSP\inc\bsp_lan8720.h
 ..\output\obj\usb_update.o: ..\BSP\inc\bsp_print.h
+..\output\obj\usb_update.o: ..\BSP\inc\bsp_rtc.h
 ..\output\obj\usb_update.o: ..\UTILS\inc\usb.h
 ..\output\obj\usb_update.o: ..\BSP\inc\netconf.h
 ..\output\obj\usb_update.o: ..\APP\inc\USB_UpDate.h

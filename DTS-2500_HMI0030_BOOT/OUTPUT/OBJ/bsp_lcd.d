@@ -62,4 +62,5 @@
 ..\output\obj\bsp_lcd.o: ..\BSP\inc\bsp_uid.h
 ..\output\obj\bsp_lcd.o: ..\BSP\inc\bsp_lan8720.h
 ..\output\obj\bsp_lcd.o: ..\BSP\inc\bsp_print.h
+..\output\obj\bsp_lcd.o: ..\BSP\inc\bsp_rtc.h
 ..\output\obj\bsp_lcd.o: ..\BSP\inc\font_asc.h

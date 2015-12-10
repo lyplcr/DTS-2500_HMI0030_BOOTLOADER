@@ -31,6 +31,7 @@
 #include "bsp_uid.h"
 #include "bsp_lan8720.h"
 #include "bsp_print.h"
+#include "bsp_rtc.h"
 
 
 /* Exported define -----------------------------------------------------------*/

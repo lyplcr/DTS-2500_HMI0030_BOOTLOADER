@@ -64,6 +64,7 @@
 ..\output\obj\sd_update.o: ..\BSP\inc\bsp_uid.h
 ..\output\obj\sd_update.o: ..\BSP\inc\bsp_lan8720.h
 ..\output\obj\sd_update.o: ..\BSP\inc\bsp_print.h
+..\output\obj\sd_update.o: ..\BSP\inc\bsp_rtc.h
 ..\output\obj\sd_update.o: ..\UTILS\inc\usb.h
 ..\output\obj\sd_update.o: ..\BSP\inc\netconf.h
 ..\output\obj\sd_update.o: ..\APP\inc\SD_UpDate.h

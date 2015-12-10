@@ -431,9 +431,12 @@ static void UartNVICConfig(void)
 */		
 void bsp_InitCOM(void)
 {
-//	UartVarInit();
+	#if 0
+		UartVarInit();
+		UartNVICConfig();
+	#endif
+	
 	UartHardInit();
-//	UartNVICConfig();
 }				
 	
 /*

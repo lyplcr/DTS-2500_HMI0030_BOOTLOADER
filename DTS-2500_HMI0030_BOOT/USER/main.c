@@ -140,7 +140,9 @@ int main( void )
 	}
 	else
 	{
-		lcd_font24(350,240,RED,BLACK,"系统文件丢失！","song24.zk");
+		BSP_InitAll();
+		
+		lcd_font24(350,240,RED,BLACK,"烧录文件错误！","song24.zk");
 		
 		while(1);
 	}
@@ -169,19 +171,29 @@ static void CloseAllInterrupt( void )
  *------------------------------------------------------------*/
 static TestStatus ConfirmAutoUpdatePassword( void )
 {
-	uint32_t *pAutoBootAddr = (uint32_t *)AUTO_LOAD_BOOT_ADDR;
+	TestStatus status = FAILED;
+	const uint32_t DEFAULT_PASSWORD = 0X00000000;
+	uint32_t RTC_BKP_DATA = 0;
 	
-	if (*pAutoBootAddr == PRIVATE_PASSWORD)
+	bsp_InitRTC();
+	
+	RTC_BKP_DATA = ReadRTC_BKP_DR(0);
+	
+	if (RTC_BKP_DATA == PRIVATE_PASSWORD)
 	{
-		if (FAILED == WriteFlashWord(AUTO_LOAD_BOOT_ADDR,0xFFFFFFFF))
-		{
-			return FAILED;
-		}
+		WriteToRTC_BKP_DR(0,DEFAULT_PASSWORD);
 		
-		return PASSED;
+		RTC_BKP_DATA = ReadRTC_BKP_DR(0);
+		
+		if (RTC_BKP_DATA == DEFAULT_PASSWORD)
+		{
+			status = PASSED;
+		}
 	}
 	
-	return FAILED;
+	bsp_DeInitRTC();
+
+	return status;
 }
 
 

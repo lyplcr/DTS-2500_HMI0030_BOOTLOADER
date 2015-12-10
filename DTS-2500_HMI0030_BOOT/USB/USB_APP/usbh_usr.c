@@ -119,6 +119,25 @@ ErrorStatus Get_USB_Status( void )
 	return ERROR;
 }
 
+/*------------------------------------------------------------
+ * Function Name  : USB_ReadyCycle
+ * Description    : USB准备
+ * Input          : None
+ * Output         : None
+ * Return         : None
+ *------------------------------------------------------------*/
+void USB_ReadyCycle( void )
+{
+	uint32_t num = 0;
+	const uint32_t USB_STATUS_CYCLE_NUM = 100000;		//USB循环体必须达到此次数才能操作
+	
+	while (num < USB_STATUS_CYCLE_NUM)
+	{
+		num++;
+		
+		USBH_Process(&USB_OTG_Core, &USB_Host);	//执行一定次数才可以改变读写U盘状态位
+	}
+}
 
 /**
 * @brief  USBH_USR_Init
@@ -128,22 +147,15 @@ ErrorStatus Get_USB_Status( void )
 */
 void USBH_USR_Init(void)
 {
-	static uint8_t startup = 0;
-
-	if(startup == 0 )
-	{
-		startup = 1;
-		#ifdef DEBUG_USB
-			#ifdef USE_USB_OTG_HS
-				printf("> USB OTG HS MSC Host\r\n");
-			#else
-				printf("> USB OTG FS MSC Host\r\n");
-			#endif
-			printf("> USB Host library started\r\n");
-			printf("> USB Host Library v2.1.0\r\n" );
+	#ifdef DEBUG_USB
+		#ifdef USE_USB_OTG_HS
+			printf("> USB OTG HS MSC Host\r\n");
+		#else
+			printf("> USB OTG FS MSC Host\r\n");
 		#endif
-		
-	}
+		printf("> USB Host library started\r\n");
+		printf("> USB Host Library v2.1.0\r\n" );
+	#endif
 }
 
 /**
@@ -262,26 +274,6 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 void USBH_USR_DeviceAddressAssigned(void)
 {
 
-}
-
-/*------------------------------------------------------------
- * Function Name  : USB_ReadyCycle
- * Description    : USB准备
- * Input          : None
- * Output         : None
- * Return         : None
- *------------------------------------------------------------*/
-void USB_ReadyCycle( void )
-{
-	uint32_t num = 0;
-	const uint32_t USB_STATUS_CYCLE_NUM = 50000;		//USB循环体必须达到此次数才能操作
-	
-	while (num < USB_STATUS_CYCLE_NUM)
-	{
-		num++;
-		
-		USBH_Process(&USB_OTG_Core, &USB_Host);	//执行一定次数才可以改变读写U盘状态位
-	}
 }
 
 /**

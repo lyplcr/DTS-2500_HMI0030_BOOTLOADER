@@ -64,6 +64,7 @@
 ..\output\obj\main.o: ..\BSP\inc\bsp_uid.h
 ..\output\obj\main.o: ..\BSP\inc\bsp_lan8720.h
 ..\output\obj\main.o: ..\BSP\inc\bsp_print.h
+..\output\obj\main.o: ..\BSP\inc\bsp_rtc.h
 ..\output\obj\main.o: ..\UTILS\inc\usb.h
 ..\output\obj\main.o: ..\BSP\inc\netconf.h
 ..\output\obj\main.o: ..\APP\inc\initial.h

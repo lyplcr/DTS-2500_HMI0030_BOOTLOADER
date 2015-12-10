@@ -17,7 +17,6 @@
 #define		SMPL_NUM				6									//传感器通道数	  
 #define		CTRL_CHN				2   								//控制通道数	
 
-#define		AUTO_LOAD_BOOT_ADDR		0x0801FFFC							//自动进入BootLoader地址
 #define		PRIVATE_PASSWORD		0x2F8E4A7D							//特权访问密码
 #define		SUPER_PASSWORD			"88320524"							//管理员密码
 

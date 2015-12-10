@@ -62,6 +62,7 @@
 ..\output\obj\client.o: ..\BSP\inc\bsp_uid.h
 ..\output\obj\client.o: ..\BSP\inc\bsp_lan8720.h
 ..\output\obj\client.o: ..\BSP\inc\bsp_print.h
+..\output\obj\client.o: ..\BSP\inc\bsp_rtc.h
 ..\output\obj\client.o: ..\BSP\inc\client.h
 ..\output\obj\client.o: ..\LWIP-1.3.1\src\include\lwip/udp.h
 ..\output\obj\client.o: ..\LWIP-1.3.1\src\include\lwip/opt.h
