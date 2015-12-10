@@ -129,6 +129,7 @@ int main( void )
 		/* Jump to user application */
 		JumpAddress = *(__IO uint32_t*) (USER_FLASH_FIRST_PAGE_ADDRESS + 4);
 		Jump_To_Application = (pFunction) JumpAddress;
+		
 		/* Initialize user application's Stack Pointer */
 		__set_MSP(*(__IO uint32_t*) USER_FLASH_FIRST_PAGE_ADDRESS);
 
