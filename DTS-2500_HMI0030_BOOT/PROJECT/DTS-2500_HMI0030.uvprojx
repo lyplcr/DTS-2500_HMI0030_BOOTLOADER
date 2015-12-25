@@ -81,7 +81,7 @@
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
             <RunUserProg2>0</RunUserProg2>
-            <UserProg1Name>fromelf --bin -o ..\BIN\HMI0030_BOOT(SY100)_151210.bin ..\OUTPUT\OBJ\DTS-2500_HMI0030.axf</UserProg1Name>
+            <UserProg1Name>fromelf --bin -o ..\BIN\HMI0030_BOOT(SY1.1.0)_151225.bin ..\OUTPUT\OBJ\DTS-2500_HMI0030.axf</UserProg1Name>
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>

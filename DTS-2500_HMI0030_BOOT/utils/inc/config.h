@@ -25,8 +25,8 @@
 #define 	CTRL_PERIOD				(1000/CTRL_FREQ)					//控制周期
 
 #define		SYSTEM_MODEL			"DTS-2500(屏显)"					//系统型号
-#define		SOFT_VERSION			"1.0.0"								//上位机软件版本	
-#define		PCB_VERSION				"HMI0030"							//上位机PCB版本
+#define		SOFT_VERSION			"1.1.0"								//上位机软件版本	
+#define		PCB_VERSION				"HMI0031"							//上位机PCB版本
 
 
 /*

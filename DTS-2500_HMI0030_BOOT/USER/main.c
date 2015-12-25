@@ -64,10 +64,14 @@ int main( void )
 	
 	while ( !bsp_CheckTimer(0))
 	{
-		if (GetKey() != KEY_OIL_RUN)
+		switch ( GetKey() )
 		{
-			EnBootLoad = DISABLE;
-			break;
+			case KEY_RUN:
+			case KEY_OIL_RUN:			
+				break;
+			default:
+				EnBootLoad = DISABLE;
+				break;
 		}
 	}
 	

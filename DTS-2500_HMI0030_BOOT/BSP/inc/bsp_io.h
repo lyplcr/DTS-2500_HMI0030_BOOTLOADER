@@ -44,6 +44,9 @@
 #define		KEY_F2					0x40000000	
 #define		KEY_F1					0x80000000
 
+#define		KEY_RUN					KEY_PRINT
+#define		KEY_STOP				KEY_FORCE_TARE
+
 
 //输入位定义
 #define		BTN_START			0x00000001			//油泵电机启动按钮
